@@ -1,0 +1,97 @@
+version: '2'
+
+services:
+  plex:
+    image: linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - VERSION=docker
+    volumes:
+      - /mnt/d/media-center/plex/config:/config
+      - /mnt/e/movies:/movies
+      - /mnt/e/tv:/tv
+    restart: unless-stopped
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    network_mode: bridge
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - TZ=Europe/Zurich
+    volumes:
+      - /mnt/d/media-center/transmission/config:/config
+      - /mnt/e/downloads:/downloads
+      - /mnt/e/torrents/watch:/watch
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - TZ=Europe/Zurich
+    volumes:
+      - /mnt/d/media-center/radarr/config:/config
+      - /mnt/e/movies:/movies
+      - /mnt/e/downloads:/downloads
+    network_mode: bridge
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - TZ=Europe/Zurich
+    volumes:
+      - /mnt/d/media-center/sonarr/config:/config
+      - /mnt/e/tv:/tv
+      - /mnt/e/downloads:/downloads
+    network_mode: bridge
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - TZ=America/Chicago
+    volumes:
+      - /mnt/d/media-center/jackett/config:/config
+      - /mnt/e/downloads:/downloads
+    network_mode: bridge
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+  swag:
+    image: lscr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=2020
+      - PGID=2020
+      - TZ=Europe/Zurich
+      - URL=yurt.ridvanduran.com
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare
+    volumes:
+      - /mnt/d/media-center/swag/config:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
